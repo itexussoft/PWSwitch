@@ -309,13 +309,6 @@ open class PWSwitch: UIControl {
         super.touchesBegan(touches, with: event)
         
         if (on) {
-            let thumbBoundsAnimation = CABasicAnimation(keyPath: "bounds")
-            thumbBoundsAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
-            thumbBoundsAnimation.fromValue = NSValue(cgRect: getThumbOffRect())
-            thumbBoundsAnimation.toValue = NSValue(cgRect: getThumbOffPushRect())
-            thumbBoundsAnimation.fillMode = kCAFillModeForwards
-            thumbBoundsAnimation.duration = 0.25
-            thumbBoundsAnimation.isRemovedOnCompletion = false
             
             let thumbPosAnimation = CABasicAnimation(keyPath: "position")
             thumbPosAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
@@ -345,7 +338,7 @@ open class PWSwitch: UIControl {
             animThumbGroup.duration = 0.25
             animThumbGroup.fillMode = kCAFillModeForwards
             animThumbGroup.isRemovedOnCompletion = false
-            animThumbGroup.animations = [thumbBoundsAnimation, thumbPosAnimation, thumbBorderColorAnimation, thumbFillColorAnimation]
+            animThumbGroup.animations = [thumbPosAnimation, thumbBorderColorAnimation, thumbFillColorAnimation]
             
             thumbLayer.removeAllAnimations()
             thumbLayer.add(animThumbGroup, forKey: "thumbAnimation")
@@ -379,14 +372,6 @@ open class PWSwitch: UIControl {
             
             backLayer.add(animGroup, forKey: "bgAnimation")
             
-            let thumbBoundsAnimation = CABasicAnimation(keyPath: "bounds")
-            thumbBoundsAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
-            thumbBoundsAnimation.fromValue = NSValue(cgRect: getThumbOffRect())
-            thumbBoundsAnimation.toValue = NSValue(cgRect: getThumbOffPushRect())
-            thumbBoundsAnimation.fillMode = kCAFillModeForwards
-            thumbBoundsAnimation.duration = 0.25
-            thumbBoundsAnimation.isRemovedOnCompletion = false
-            
             let thumbPosAnimation = CABasicAnimation(keyPath: "position")
             thumbPosAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
             thumbPosAnimation.fromValue = NSValue(cgPoint: getThumbOffPos())
@@ -407,7 +392,7 @@ open class PWSwitch: UIControl {
             animThumbGroup.duration = 0.25
             animThumbGroup.fillMode = kCAFillModeForwards
             animThumbGroup.isRemovedOnCompletion = false
-            animThumbGroup.animations = [thumbBoundsAnimation, thumbPosAnimation, thumbBorderColorAnimation]
+            animThumbGroup.animations = [thumbPosAnimation, thumbBorderColorAnimation]
             
             thumbLayer.add(animThumbGroup, forKey: "thumbAnimation")
         }
@@ -416,27 +401,17 @@ open class PWSwitch: UIControl {
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
         
-        let touchPoint = touches.first?.location(in: self)
-        if (self.bounds.contains(touchPoint!)) {
-            if (on) {
-                onToOffAnim()
-            } else {
-                offToOnAnim()
-            }
-            
-            self.on = !self.on
-            
-            self.sendActions(for: UIControlEvents.valueChanged)
-            
+        let startPoint = touches.first!.previousLocation(in: superview)
+        let endPoint = touches.first!.location(in: superview)
+        let vector = CGVector(dx: endPoint.x - startPoint.x, dy: endPoint.y - startPoint.y)
+        if !on && vector.dx > 0 {
+            setOn(true, animated: true)
+        } else if on && vector.dx < 0 {
+            setOn(false, animated: true)
+        } else if -0.5...0.5 ~= vector.dx {
+            setOn(!on, animated: true)
         } else {
             if (on) {
-                let thumbBoundsAnimation = CABasicAnimation(keyPath: "bounds")
-                thumbBoundsAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
-                thumbBoundsAnimation.fromValue = NSValue(cgRect: getThumbOffPushRect())
-                thumbBoundsAnimation.toValue = NSValue(cgRect: getThumbOffRect())
-                thumbBoundsAnimation.fillMode = kCAFillModeForwards
-                thumbBoundsAnimation.duration = 0.25
-                thumbBoundsAnimation.isRemovedOnCompletion = false
                 
                 let thumbPosAnimation = CABasicAnimation(keyPath: "position")
                 thumbPosAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.175, 0.885, 0.32, 1.275)
@@ -467,7 +442,7 @@ open class PWSwitch: UIControl {
                 animThumbGroup.duration = 0.25
                 animThumbGroup.fillMode = kCAFillModeForwards
                 animThumbGroup.isRemovedOnCompletion = false
-                animThumbGroup.animations = [thumbBoundsAnimation, thumbPosAnimation, thumbBorderColorAnimation, thumbFillColorAnimation]
+                animThumbGroup.animations = [thumbPosAnimation, thumbBorderColorAnimation, thumbFillColorAnimation]
                 
                 thumbLayer.removeAllAnimations()
                 thumbLayer.add(animThumbGroup, forKey: "thumbAnimation")
@@ -502,14 +477,6 @@ open class PWSwitch: UIControl {
                 backLayer.removeAllAnimations()
                 backLayer.add(animGroup, forKey: "bgAnimation")
                 
-                let thumbBoundsAnimation = CABasicAnimation(keyPath: "bounds")
-                thumbBoundsAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.77, 0, 0.175, 1)
-                thumbBoundsAnimation.fromValue = NSValue(cgRect: getThumbOffPushRect())
-                thumbBoundsAnimation.toValue = NSValue(cgRect: getThumbOffRect())
-                thumbBoundsAnimation.fillMode = kCAFillModeForwards
-                thumbBoundsAnimation.duration = 0.25
-                thumbBoundsAnimation.isRemovedOnCompletion = false
-                
                 let thumbPosAnimation = CABasicAnimation(keyPath: "position")
                 thumbPosAnimation.timingFunction = CAMediaTimingFunction(controlPoints: 0.77, 0, 0.175, 1)
                 thumbPosAnimation.fromValue = NSValue(cgPoint: getThumbOffPushPos())
@@ -530,7 +497,7 @@ open class PWSwitch: UIControl {
                 animThumbGroup.duration = 0.25
                 animThumbGroup.fillMode = kCAFillModeForwards
                 animThumbGroup.isRemovedOnCompletion = false
-                animThumbGroup.animations = [thumbBoundsAnimation, thumbPosAnimation, thumbBorderColorAnimation]
+                animThumbGroup.animations = [thumbPosAnimation, thumbBorderColorAnimation]
                 
                 thumbLayer.removeAllAnimations()
                 thumbLayer.add(animThumbGroup, forKey: "thumbAnimation")
@@ -727,6 +694,7 @@ open class PWSwitch: UIControl {
                 thumbLayer.borderColor = thumbOffBorderColor?.cgColor
             }
         }
+        sendActions(for: UIControlEvents.valueChanged)
     }
     
     override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
